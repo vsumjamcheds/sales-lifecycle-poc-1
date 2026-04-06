@@ -1,0 +1,10 @@
+# Light theme so Chrome/Streamlit widgets (select menus, scroll areas) stay grey, not black.
+[theme]
+base = "light"
+primaryColor = "#2563eb"
+backgroundColor = "#d4d4d8"
+secondaryBackgroundColor = "#e4e4e7"
+textColor = "#18181b"
+
+[browser]
+gatherUsageStats = false

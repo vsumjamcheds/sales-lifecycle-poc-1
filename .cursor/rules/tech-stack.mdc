@@ -1,0 +1,26 @@
+---
+description: POC stack, testing, and API boundaries
+globs: "**/*"
+alwaysApply: true
+---
+
+# Tech stack
+
+- **Backend**: FastAPI + SQLAlchemy + SQLite (`DATABASE_URL` in `.env`).
+- **UI**: Streamlit; call FastAPI via `httpx` using `API_BASE_URL`. Do not query SQL or Chroma from Streamlit.
+- **LLM**: Anthropic Claude (model from `ANTHROPIC_MODEL`). API key only in backend env.
+- **Vectors**: ChromaDB persisted at `CHROMA_PATH`. One shared embedding function for `hcp_memory` and `claims_master` (see `src/database/vector_store.py`).
+- **Reps**: `RepGA`, `RepNJ`, `RepFL` — territory-scoped data only.
+
+# Testing
+
+- Prefer **pytest** for territory isolation and compliance behavior.
+- Add or update tests when changing agent or auth behavior.
+
+# Agent roles
+
+- **Scout**: SQL signals only (7+7 day window).
+- **Capacity**: Scout list + rep capacity tables.
+- **Strategist**: Claude iterative tool use (`fetch_hcp_performance`, `search_hcp_memory`).
+- **Compliance**: Vector gatekeeper + keyword BLOCK list.
+- **Scribe**: PII scrub before vectorization; full audit trail.

@@ -1,0 +1,21 @@
+---
+description: HCP brain, scout window, compliance threshold
+globs: "src/**/*"
+alwaysApply: false
+---
+
+# HCP Brain
+
+- **Relational truth**: `HCP`, `PrescribingSignal`, `InteractionHistory`, `Rep`, `RepCommitment`.
+- **Narrative memory**: Chroma collection `hcp_memory` keyed by `hcp_id` in metadata.
+- **Never** return HCPs outside the active rep’s `territory_code`.
+
+# Scout “declining loyalty”
+
+- Fixed **14-day** seed horizon; compare **period A = days 1–7** vs **period B = days 8–14** (inclusive by `signal_date` / `interaction_date`).
+- Rank using prescribing trend + engagement decay; attach short **driver** string for UI.
+
+# Compliance
+
+- `COMPLIANCE_SIMILARITY_THRESHOLD` default `0.90` (cosine in embedding space).
+- Off-label / unsafe themes: `BLOCK` via explicit keyword list in `compliance_gatekeeper.py` (POC).
