@@ -133,6 +133,19 @@ def fetch_json(method: str, path: str, **kwargs):
         return None, str(exc)
 
 
+def _api_connection_hint(err: str | None) -> str:
+    if not err:
+        return ""
+    e = str(err).lower()
+    if "connection refused" in e or "errno 61" in e or "actively refused" in e:
+        return (
+            f"\n\n**Fix:** start the API in another terminal from the project root:\n\n"
+            f"`uvicorn src.api.main:app --port 8000`\n\n"
+            f"Streamlit is calling **`{API_BASE}`** (set `API_BASE_URL` in `.env` if the API runs elsewhere)."
+        )
+    return ""
+
+
 def _audit_entry_hcp_id(entry: dict) -> int | None:
     p = entry.get("payload")
     if not isinstance(p, dict):
@@ -260,7 +273,7 @@ if use_live:
         rows = data.get("hcps", [])
         st.session_state.scout_rows = rows
     else:
-        st.warning(f"API unavailable ({err}). Showing mock.")
+        st.warning(f"API unavailable ({err}). Showing mock.{_api_connection_hint(err)}")
         rows = mock_capacity_rows_for_rep(st.session_state.active_rep)
 else:
     rows = mock_capacity_rows_for_rep(st.session_state.active_rep)
@@ -371,7 +384,7 @@ if st.button("Generate plan (Strategist + Compliance)") and hcp_id:
             st.session_state.compliance = payload.get("compliance")
             st.session_state["_expand_thought_after_plan"] = True
         else:
-            st.error(err)
+            st.error(f"{err}{_api_connection_hint(err)}")
     else:
         st.session_state.plan = STRATEGIST_PLAN_MOCK
         st.session_state.thought_log = ["mock: no API"]
@@ -455,7 +468,7 @@ if st.button("Sync to Brain") and hcp_id and note.strip():
             st.session_state["_refresh_audit_on_next_run"] = True
             st.rerun()
         else:
-            st.error(err)
+            st.error(f"{err}{_api_connection_hint(err)}")
     else:
         st.info("Mock mode: enable live API to persist.")
 
